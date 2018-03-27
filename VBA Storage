@@ -1,0 +1,68 @@
+Sub Color2Source()
+
+	Dim rData, colorKey As Range
+	Dim cellCurrent as Range
+	Dim sheet as Worksheet
+	Dim currentCellColor as Long
+	Dim hold as String
+
+	Dim numEntries as Long
+	Dim EPSRCColour, PPPColour, FIREColour, IndustrialColour, OtherEUColour as Long
+
+	sheet = ActiveWorkbook.Sheets("Universities - projects")
+
+	numEntries = sheet.Range("B200000").End(xlUp).Row
+
+	' establish quick & dirty color key
+
+	EPSRCColour = sheet.Range("L1").Interior.Color
+	PPPColour = sheet.Range("L2").Interior.Color
+	FIREColour = sheet.Range("L3").Interior.Color
+	IndustrialColour = sheet.Range("L4").Interior.Color
+	OtherEUColour  = sheet.Range("L5").Interior.Color
+
+
+
+	Set rData = sheet.Range("B2:B" & numEntries)
+
+	For Each cellCurrent In rData
+
+		currentCellColor = cellCurrent.Interior.Color
+
+		Select Case currentCellColor
+
+			Case EPSRCColour
+
+				hold = "EPSRC"
+
+			Case PPPColour
+
+				hold = "5GPPP"
+
+			Case FIREColour
+
+				hold = "FIRE"
+			Case IndustrialColour
+
+				hold = "Industrial"
+
+			Case OtherEUColour
+
+				hold = "Other EU"
+			Case Else
+
+				hold = ""
+
+		End Select
+
+
+		print(hold)
+
+		cellCurrent.offset(0,7).Value = hold
+
+
+
+
+	Next cellCurrent
+
+End Sub

@@ -1,0 +1,11 @@
+*.xlsm
+*.xlsx
+*.csv
+*.tsv
+*.pickle
+!CORDIS_Countries.pickle
+*.html
+*.json
+*.json
+!UK_Only.vg.json
+
