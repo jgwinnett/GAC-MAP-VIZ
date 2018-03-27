@@ -1,6 +1,5 @@
 def Hierarchy():
 
-
     import pandas as pd
     import numpy as np
     import pprint as pp
@@ -9,17 +8,24 @@ def Hierarchy():
     import matplotlib.ticker as tkr
     import graph_tool.all as gt
     import math
-    # Need to drag this out into the real world
-    from kostas import findEdges, stupidTextWorkaround
+    import os.path, sys
+    sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
+    from pathlib import Path
 
+    # Need to drag this out into the real world
+    from GAC_Graph_Builder import findEdges, stupidTextWorkaround, setting
+    cwd = Path.cwd().parent
+    pickle_path = cwd /'Pickles'/ 'classifiedDF.pickle'
+    print(pickle_path)
+    df = pd.read_pickle(str(pickle_path))
 
 
     t = gt.Graph(directed = True)
 
     tprop_label = t.new_vertex_property("string")
     tprop_instType = t.new_vertex_property("string")
-
-    linkDict, instSet = findEdges()
+    instSet = setting(df)
+    linkDict = findEdges(instSet)
 
     # ingest our university checking lists [this is sloppy, TBI]
 
@@ -260,7 +266,7 @@ def Stochastic():
     import math
 
     # Need to drag this out into the real world
-    from kostas import findEdges
+    from GAC_Graph_Builder import findEdges
 
 
     t = gt.Graph(directed = True)

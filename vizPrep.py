@@ -1,5 +1,5 @@
-import wierd_data_ingest
-import kostas
+# import Mixed_Source_Graph_Builder as Mixed_Graph_Builder
+import GAC_Graph_Builder as Graph_Builder
 import pandas as pd
 import json
 import ast
@@ -36,8 +36,8 @@ class dataWangler():
 
         self.node_jsonList = []
         self.edge_jsonList = []
-        self.setzzz = kostas.setting((self.DF_main))
-        self.linkDict =  kostas.findEdges(self.setzzz)
+        self.setzzz = Graph_Builder.setting((self.DF_main))
+        self.linkDict =  Graph_Builder.findEdges(self.setzzz)
         self.instList = self.makeSetaList(self.setzzz)
 
 
@@ -62,7 +62,7 @@ class dataWangler():
         for inst in self.setzzz:
 
 
-             nameCheck = kostas.stupidTextWorkaround(inst)
+             nameCheck = Graph_Builder.stupidTextWorkaround(inst)
              nameCheck = nameCheck.upper()
 
             # print(nameCheck)
@@ -124,7 +124,7 @@ class dataWangler():
 
             # establish lead as edge source, errors are fine
             for x in lead:
-                #x = kostas.stupidTextWorkaround(x)
+                #x = Graph_Builder.stupidTextWorkaround(x)
 
                 if x == "Cardiff ":
                     print("yay!")
