@@ -13,16 +13,19 @@ This is in no way to be considered a finished product and will likely need some 
 * Create the .json files needed for VEGA visualization
 
 
+## Graph-Tool
 
+This project initially used [Graph-Tool](https://gitlab.com/JGwinnett/GAC-MAP) a fantastic tool for visualizing networks. I've since migrated to using VEGA to allow for online-embedding.
 
+The Graph-Tool modules are currently broken due to the restructuring of the other modules. They may be fixed in the future, if needed.
 
 
 ## Dependencies
 
-pandas
-numpy
-ast
-json
-matplotlib
-forex_python
-Graph-Tool (deprecated)
+* pandas
+* numpy
+* ast
+* json
+* matplotlib
+* forex_python
+* Graph-Tool (deprecated)
