@@ -6,6 +6,7 @@ import re
 
 def reg_ex(stryng):
 
+    """ A regular expression check to see if the first character in a string is whitespace """
     pattern = re.compile("^\s.*$")
 
     if pattern.match(stryng):
@@ -15,6 +16,8 @@ def reg_ex(stryng):
         return stryng
 
 def oneFile():
+
+    """ Merges two specified excel sheets (Academia.xlsm and Industry.xlsm) into a single dataframe. Exports this dataframe to 'DataPrep/merged.xlsx' """
 
     academia = pd.read_excel('DataPrep/Academia.xlsm', sheet_name = 'Universities - projects')
     academia = academia[["University Name", "Project Name", "Partners", "Funding", "Classification", "Source"]]
@@ -37,9 +40,10 @@ def oneFile():
     df.to_pickle('Pickles/excel_merged.pickle')
     df.to_excel('DataPrep/merged.xlsx')
 
-###### DOESN'T CURRENTLY INGEST THE GtR ETC ##############
-
 def standardize():
+
+    """ An extremely ugly and inefficient effort to correct typos and inconsistencies in the base data-set. A dictionary of corrections (badDict) is hard coded and every value in projCollab and projLead has the
+    badDict passed over it. """
 
     df = pd.read_pickle('Pickles/excel_merged.pickle')
 
@@ -230,36 +234,27 @@ def standardize():
 
 def listify():
 
+    """ Converts the projCollab and projGrouping columns into lists (to make later processing easier). """
+
     df = pd.read_pickle('Pickles/classifiedDF.pickle')
 
-    df['projCollab'] = df['projCollab'].apply(lambda x: x.split(','))
+    try:
+        df['projCollab'] = df['projCollab'].apply(lambda x: x.split(','))
+    except:
+        AttributeError
 
-    df['projGrouping'] = df['projGrouping'].apply(lambda x: x.split(','))
+    try:
+        df['projGrouping'] = df['projGrouping'].apply(lambda x: x.split(','))
+    except:
+        AttributeError
 
     df.to_pickle('Pickles/classifiedDF.pickle')
 
-def setTest():
 
-    df = pd.read_pickle('Pickles/classifiedDF.pickle')
-
-    leadSet = set(df['projLead'].tolist())
-
-    leadSetList = list(leadSet)
-    leadSetList = sorted(leadSetList
-
-
-    )
-
-def more_cleanup(self):
-
-    error_dict
-
-
-
-oneFile()
-standardize()
-try:
-    listify()
-except:
-    AttributeError
-setTest()
+# oneFile()
+# standardize()
+# try:
+#     listify()
+# except:
+#     AttributeError
+# setTest()

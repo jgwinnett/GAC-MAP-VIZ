@@ -1,19 +1,20 @@
-# import Mixed_Source_Graph_Builder as Mixed_Graph_Builder
 import GAC_Graph_Builder as Graph_Builder
 import pandas as pd
 import json
 import ast
-from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
 import numpy as np
+from forex_python.converter import CurrencyRates
 
 class dataWangler():
 
+    """ This class is responsible for constructing the various .json files needed for the VEGA visualization. Processing is done predominantly by pandas and stored in python dictionaries
+    before being written to disk. """
+
+
     def __init__(self):
+
+        """ Stores variable names and file paths. Also calls upon GAC_Graph_Builder to generate a set of institutions and a dictionary of inst. to inst. relationships """
         self.DF_main = None
-
-
-
 
         self.foreignUniVals = None
         self.UKUniVals = None
@@ -44,6 +45,8 @@ class dataWangler():
 
     def loadWorkArounds(self):
 
+        """ Loads the workaround text files. These are used as stop-gaps for checking eligibility for inclusion (UK or not) """
+
         foreignUniTxt = open(self.foreignUniTxt_path,'r')
         UKUniTxt = open(self.UKUniTxt_path,'r')
         dfCordisNames = pd.read_pickle(self.CORDIS_Countries_Path)
@@ -55,6 +58,17 @@ class dataWangler():
         self.eligiblenames = dfCordisNames.name.values.tolist()
 
     def popIneligible(self):
+
+
+        """ Removes nodes that should not be included, i.e. they are not U.K based. Unfortunately there's no clean programmatic way of assessing whether a company is "UK Based"
+        (it's hard to even articulate a definition for that phrase).
+
+        The first test is whether it appears in the CORDIS list of U.K companies. If not it is then checked against the
+        different 'workaround texts'. If it's a value in the list of foreign univserities it is removed.
+
+         I compiled these .txt files by hand as a quick'n'dirty way of bulk labelling instiutions.
+
+        """
 
         delSetList = []
 
@@ -90,6 +104,9 @@ class dataWangler():
 
     def nodeBuilder(self):
 
+        """ Builds a list of dictionaries. Each dictionary constitutes a node and stores useful information inside it. In this function this creates the id number, stores the name
+        and labels the node as being academic or industry """
+
         for n, name in enumerate(self.instList):
 
 
@@ -109,6 +126,14 @@ class dataWangler():
 
     def edgeBuilder(self):
 
+        """ Constructs a list of dictionaries. Each dictionary represents an edge between two nodes. It stores the source, target and number of projects (links).
+
+            This is done by iterating over each row in the dataframe. Links are only created between the projLead and projCollab, not intra projCollab.
+
+            Each name in projLead/projCollab is checked against the list of nodes, if the id is found for both then the edge is created.
+
+        """
+
         for i, row in enumerate(self.DF_main.values):
 
 
@@ -125,9 +150,6 @@ class dataWangler():
             # establish lead as edge source, errors are fine
             for x in lead:
                 #x = Graph_Builder.stupidTextWorkaround(x)
-
-                if x == "Cardiff ":
-                    print("yay!")
                 source_tar = x
                 try:
                     source_match = next((t for t in self.node_jsonList if t['name'] == source_tar), None)
@@ -135,7 +157,8 @@ class dataWangler():
                 except:
                     KeyError
                     #print(x + " Error'd at source")
-                    print(source_tar, source_match, source_id)
+                    #print(source_tar, source_match, source_id)
+
                     # construct directed edge for each collab
                 try:
                     for inst in collab:
@@ -157,6 +180,13 @@ class dataWangler():
 
     def node_cleanup(self):
 
+        """ This cleans up orphan nodes - those without any edges listing the node as a source or target.
+
+            Orphan nodes are mostly created when projects are recorded without collaborators or where the only collaborators were outside the U.K
+
+            Iterates over the nodes and performs a check for the ID in the entire list of edges.
+        """
+
         counter = 0
         for i, name in enumerate(self.node_jsonList):
 
@@ -176,7 +206,15 @@ class dataWangler():
 
     def node_financials(self):
 
+        """ Modies the nodes to store financial information. Only stores the information for projects where the node name/ID is recorded as projLead within the dataframe.
+
+            Information is stored by updating the node dictionary
+
+            Some values are Euros and recorded within the dataframe as such. We use forex_python to convert currency based on live rates """
+
         df = self.DF_main
+
+        c = CurrencyRates()
 
         grouped = df.groupby(by="projLead")
         df_wurds = sorted(list(grouped.groups))
@@ -208,7 +246,7 @@ class dataWangler():
                         if "EUR" in val:
                             tempVal = val[3:]
                             tempVal = float(tempVal)
-                            tempVal = tempVal * 0.89
+                            tempVal = c.convert('EUR', 'GBP', tempVal))
                         else:
                             tempVal = float(tempVal)
                     elif val == "":
@@ -229,6 +267,8 @@ class dataWangler():
 
     def node_ProjectCount(self):
 
+        """ Adds to node information by summing the number of projects a node is recorded as being projLead """
+
         df = self.DF_main
 
         grouped = df.groupby(by="projLead")
@@ -246,6 +286,9 @@ class dataWangler():
 
     def edge_dupe_check(self):
 
+        """ Removes duplicate edges when a projLead and projCollab work together on different projects. When a a duplicate edge is removed this is stored
+        as an edge property to measure the number of collaborations """
+
         to_pop = []
 
         for i, edge in enumerate(self.edge_jsonList):
@@ -261,6 +304,8 @@ class dataWangler():
 
 
     def json_toDisk(self):
+
+        """ Writes the lists of dictionaries to json files named edges.json and nodes.json """
 
         with open('VegaViz/edges.json','w') as outfile:
             json.dump(self.edge_jsonList, outfile)
@@ -283,29 +328,29 @@ class dataWangler():
 
 
 
-
-x = dataWangler()
-x.loadWorkArounds()
-x.popIneligible()
-x.nodeBuilder()
-x.node_ProjectCount()
-
-x.node_financials()
-
-x.edgeBuilder()
-
-x.edge_dupe_check()
-
-count = 20
-
-while count > 0:
-    y = x.node_cleanup()
-    print(y)
-    count -= 1
-# nodes_dirty = True
-# while nodes_dirty:
-#     check = x.node_cleanup()
-#     if check == 0:
-#         nodes_dirty = False
-
-x.json_toDisk()
+#
+# x = dataWangler()
+# x.loadWorkArounds()
+# x.popIneligible()
+# x.nodeBuilder()
+# x.node_ProjectCount()
+#
+# x.node_financials()
+#
+# x.edgeBuilder()
+#
+# x.edge_dupe_check()
+#
+# count = 20
+#
+# while count > 0:
+#     y = x.node_cleanup()
+#     print(y)
+#     count -= 1
+# # nodes_dirty = True
+# # while nodes_dirty:
+# #     check = x.node_cleanup()
+# #     if check == 0:
+# #         nodes_dirty = False
+#
+# x.json_toDisk()
