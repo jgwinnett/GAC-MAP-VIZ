@@ -68,7 +68,6 @@ def standardize():
     'CORSA Technology':'CORSA',
     'CREAT-NET':'CREATE-NET',
     'Cabridge':'Cambridge',
-    'Cabridge':'Cambridge',
     'Cambidge':'Cambridge',
     'Cardiff ':'Cardiff',
     'China Mobile Limited':'China Mobile',
@@ -253,8 +252,4 @@ def listify():
 
 # oneFile()
 # standardize()
-# try:
-#     listify()
-# except:
-#     AttributeError
-# setTest()
+# listify()
