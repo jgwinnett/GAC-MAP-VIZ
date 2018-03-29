@@ -228,7 +228,7 @@ def standardize():
     #df.drop_duplicates(subset="projName", keep='first',inplace=True)
     df = df.replace(np.nan, '', regex=True)
     df.reset_index(inplace=True, drop=True)
-    df.to_excel('more_test.xlsx')
+    df.to_excel('mergedt.xlsx')
     df.to_pickle('Pickles/classifiedDF.pickle')
 
 def listify():
